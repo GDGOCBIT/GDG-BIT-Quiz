@@ -1,0 +1,48 @@
+# docker-compose for local development
+# Starts a PostgreSQL 16 instance + the FastAPI backend together.
+#
+#   docker compose up --build
+#   backend  → http://localhost:8000/docs
+#
+# Environment:
+#   Copy backend/.env.example to backend/.env and set your real AUTH_SECRET
+#   and ADMIN_PASSWORD.  DATABASE_URL is pre-configured to the local PG.
+
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: quiz
+      POSTGRES_PASSWORD: quiz
+      POSTGRES_DB: quizlive
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quiz -d quizlive"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: backend
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://quiz:quiz@db:5432/quizlive
+      AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me-before-sharing}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      CORS_ORIGINS: "*"
+    volumes:
+      - ./backend/app:/srv/app   # hot-reload in dev
+      - ./backend/schema.sql:/srv/schema.sql
+
+volumes:
+  pg_data:

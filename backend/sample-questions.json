@@ -1,0 +1,24 @@
+{
+  "title": "GDG Kickoff Quiz",
+  "description": "Sample set — replace with your own questions.",
+  "questions": [
+    {
+      "text": "Which company maintains the Go programming language?",
+      "options": ["Google", "Microsoft", "Apple", "Meta"],
+      "correct_index": 0,
+      "seconds": 20
+    },
+    {
+      "text": "What does CSS stand for?",
+      "options": ["Cascading Style Sheets", "Computer Style System", "Creative Style Syntax"],
+      "correct_index": 0,
+      "seconds": 20
+    },
+    {
+      "text": "Cloudflare D1 is built on which database engine?",
+      "options": ["Postgres", "SQLite", "MySQL", "MongoDB"],
+      "correct_index": 1,
+      "seconds": 10
+    }
+  ]
+}

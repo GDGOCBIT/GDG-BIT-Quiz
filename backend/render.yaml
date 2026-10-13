@@ -1,0 +1,27 @@
+# Render.com one-click deploy configuration
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Usage:
+#   1. Fork / push this repo to GitHub
+#   2. New → Blueprint → point to this repo
+#   3. Set DATABASE_URL and ADMIN_PASSWORD in Render dashboard
+
+services:
+  - type: web
+    name: quizlive-api
+    env: python
+    region: singapore            # change to the region closest to your users
+    plan: free                   # upgrade to starter for always-on WebSockets
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATABASE_URL
+        sync: false              # paste your Aiven/Neon/Supabase URL here
+      - key: AUTH_SECRET
+        generateValue: true      # Render auto-generates a random value
+      - key: ADMIN_PASSWORD
+        sync: false              # set a strong password in the Render dashboard
+      - key: CORS_ORIGINS
+        value: "*"               # replace with your Vercel/Netlify frontend URL

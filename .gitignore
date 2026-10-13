@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -14,28 +14,47 @@
 /coverage
 
 # next.js
-/.next/
-/out/
+.next/
+out/
+/frontend-dist/
 
-# production
+# production build
 /build
 
 # misc
 .DS_Store
 *.pem
 
-# debug
+# debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — never commit secrets
+.env
+.env.*
+!.env.example
 
-# vercel
+# python backend
+backend/.venv/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/routers/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.pytest_cache/
+backend/uv.lock
+
+# local sqlite (left over from old version)
+*.db
+*.db-wal
+*.db-shm
+
+# vercel / netlify
 .vercel
+.netlify
 
-# typescript
+# typescript build info
 *.tsbuildinfo
 next-env.d.ts
