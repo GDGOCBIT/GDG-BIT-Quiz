@@ -82,11 +82,16 @@ export function PlayClient() {
   const router = useRouter();
   const [nonce, setNonce] = useState(0);
 
+  // Adaptive polling: fast (2.5s) in lobby, calm (15s) while answering questions to maximize server throughput
+  const [localScore, setLocalScore] = useState<number | null>(null);
+  const [finishedQuizLocally, setFinishedQuizLocally] = useState(false);
+
   // Poll quiz bundle: fetches all questions & current status in one go
+  // Automatically stops polling once local quiz is finished to conserve server resources
   const { data, error } = usePoll<PlayState>(
     () => api<PlayState>("/api/play/bundle"),
-    2000,
-    true,
+    3000,
+    !finishedQuizLocally,
     nonce
   );
 
@@ -95,8 +100,6 @@ export function PlayClient() {
   const [localAnswers, setLocalAnswers] = useState<
     Record<string, { choice: number; isCorrect: boolean; points: number }>
   >({});
-  const [localScore, setLocalScore] = useState<number | null>(null);
-  const [finishedQuizLocally, setFinishedQuizLocally] = useState(false);
 
   // Populate local answers from server on bundle load
   useEffect(() => {

@@ -5,7 +5,20 @@ import { getParticipant } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-// Live top-10 for players during and after the quiz.
+type LeaderboardCache = {
+  expiresAt: number;
+  top10: Array<{
+    id: string;
+    name: string;
+    stream: string;
+    score: number;
+    rank: number;
+  }>;
+  totalParticipants: number;
+};
+const leaderboardCache = new Map<string, LeaderboardCache>();
+
+// Live top-10 for players during and after the quiz with 2s TTL micro-cache
 export async function GET() {
   const session = await getParticipant();
   if (!session) {
@@ -21,23 +34,45 @@ export async function GET() {
     return NextResponse.json({ error: "Not joined" }, { status: 401 });
   }
 
-  const [board, totalRows] = await Promise.all([
-    db
-      .select({
-        id: participants.id,
-        name: participants.name,
-        stream: participants.stream,
-        score: participants.score,
-      })
-      .from(participants)
-      .where(eq(participants.quizId, me.quizId))
-      .orderBy(sql`${participants.score} desc, ${participants.createdAtMs} asc`)
-      .limit(10),
-    db
-      .select({ count: sql<number>`count(*)` })
-      .from(participants)
-      .where(eq(participants.quizId, me.quizId)),
-  ]);
+  const now = Date.now();
+  let cached = leaderboardCache.get(me.quizId);
+
+  if (!cached || now > cached.expiresAt) {
+    const [board, totalRows] = await Promise.all([
+      db
+        .select({
+          id: participants.id,
+          name: participants.name,
+          stream: participants.stream,
+          score: participants.score,
+        })
+        .from(participants)
+        .where(eq(participants.quizId, me.quizId))
+        .orderBy(sql`${participants.score} desc, ${participants.createdAtMs} asc`)
+        .limit(10),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(participants)
+        .where(eq(participants.quizId, me.quizId)),
+    ]);
+
+    let rank = 0;
+    let lastScore: number | null = null;
+    const computedTop10 = board.map((p, i) => {
+      if (lastScore === null || p.score !== lastScore) {
+        rank = i + 1;
+        lastScore = p.score;
+      }
+      return { ...p, rank };
+    });
+
+    cached = {
+      expiresAt: now + 2000,
+      top10: computedTop10,
+      totalParticipants: Number(totalRows[0]?.count ?? 0),
+    };
+    leaderboardCache.set(me.quizId, cached);
+  }
 
   const [{ count: betterThanMe }] = await db
     .select({ count: sql<number>`count(*)` })
@@ -46,22 +81,15 @@ export async function GET() {
       sql`${participants.quizId} = ${me.quizId} and ${participants.score} > ${me.score}`
     );
 
-  // Competition ranking: tied scores share a rank (1, 2, 2, 4…), matching
-  // myRank below and the ended-phase rank in /api/play.
-  let rank = 0;
-  let lastScore: number | null = null;
-  const top10 = board.map((p, i) => {
-    if (lastScore === null || p.score !== lastScore) {
-      rank = i + 1;
-      lastScore = p.score;
-    }
-    return { ...p, rank, isMe: p.id === me.id };
-  });
+  const top10WithMe = cached.top10.map((p) => ({
+    ...p,
+    isMe: p.id === me.id,
+  }));
 
   return NextResponse.json({
-    serverNow: Date.now(),
-    top10,
-    totalParticipants: Number(totalRows[0]?.count ?? 0),
+    serverNow: now,
+    top10: top10WithMe,
+    totalParticipants: cached.totalParticipants,
     myRank: Number(betterThanMe) + 1,
     myScore: me.score,
   });

@@ -1,0 +1,12 @@
+{
+  "name": "gdg-bit-quiz-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Google Developer Groups on Campus Live Quiz Platform",
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix frontend",
+    "lint": "npm run lint --prefix frontend"
+  }
+}

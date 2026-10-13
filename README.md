@@ -17,6 +17,23 @@ FastAPI Backend ──── PostgreSQL (Aiven / Render / Neon / Supabase)
 Frontend (Next.js) ── Vercel / Netlify
 ```
 
+## ⚡ One-Click Free Deploy
+
+### Option 1: Fullstack Next.js on Vercel (Recommended — 100% Free, Instant)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FGDGOCBIT%2FGDG-BIT-Quiz&root-directory=frontend&env=DATABASE_URL,AUTH_SECRET,ADMIN_PASSWORD&project-name=gdg-quizlive)
+
+1. Click the **Deploy with Vercel** button above.
+2. Enter the 3 environment variables:
+   - `DATABASE_URL`: `postgres://avnadmin:...@pg-384ce2d2-bit-projects.l.aivencloud.com:16658/defaultdb?sslmode=require` (or your Neon/Supabase URL)
+   - `AUTH_SECRET`: `gdg-on-campus-quiz-production-secret-token-key-2026` (any 32+ char secret)
+   - `ADMIN_PASSWORD`: `holyshit` (your admin console master password)
+3. Click **Deploy** — your site will be live on `https://<your-project>.vercel.app` in ~60 seconds!
+
+### Option 2: Python FastAPI WebSocket Backend on Render (Free)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/GDGOCBIT/GDG-BIT-Quiz)
+
+Uses `backend/render.yaml` for instant automatic setup on Render with zero CLI commands needed.
+
 ---
 
 ## Architecture at a glance

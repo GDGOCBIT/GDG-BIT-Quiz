@@ -46,11 +46,10 @@ function makeClient(): DrizzleDb {
     const pool = new Pool({
       connectionString: cleanUrl,
       ...(wantsSsl ? { ssl: { rejectUnauthorized: false } } : {}),
-      // Cap connections: serverless fans out instances × pool, and small
-      // Postgres plans (Aiven free etc.) allow only a handful of clients.
-      max: 3,
-      idleTimeoutMillis: 10_000,
-      connectionTimeoutMillis: 10_000,
+      // Tuned for 50+ concurrent live event attendees
+      max: 10,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 5_000,
     });
     return drizzle(pool, {
       schema,

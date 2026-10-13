@@ -12,6 +12,24 @@ import { getParticipant } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
+// Fast in-memory micro-cache to protect database when 50+ attendees query concurrently
+type QuizCache = {
+  expiresAt: number;
+  quiz: { title: string; status: string; description: string };
+  questions: Array<{
+    id: string;
+    index: number;
+    position: number;
+    text: string;
+    options: string[];
+    seconds: number;
+    correctIndex: number;
+  }>;
+  totalQuestions: number;
+  participantCount?: number;
+};
+const quizCache = new Map<string, QuizCache>();
+
 export async function GET() {
   const session = await getParticipant();
   if (!session) {
@@ -27,42 +45,81 @@ export async function GET() {
     return NextResponse.json({ error: "Not joined" }, { status: 401 });
   }
 
-  const [quiz] = await db
-    .select()
-    .from(quizzes)
-    .where(eq(quizzes.id, me.quizId))
-    .limit(1);
-  if (!quiz) {
-    return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
+  const now = Date.now();
+  let cached = quizCache.get(me.quizId);
+
+  // If cache expired or not present, fetch fresh quiz & question bundle
+  if (!cached || now > cached.expiresAt) {
+    const [freshQuiz] = await db
+      .select()
+      .from(quizzes)
+      .where(eq(quizzes.id, me.quizId))
+      .limit(1);
+
+    if (!freshQuiz) {
+      return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
+    }
+
+    const questionRows = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.quizId, me.quizId))
+      .orderBy(asc(questions.position));
+
+    let pCount = 0;
+    if (freshQuiz.status === "lobby") {
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(participants)
+        .where(eq(participants.quizId, me.quizId));
+      pCount = Number(count);
+    }
+
+    cached = {
+      expiresAt: now + (freshQuiz.status === "active" ? 3000 : 1500),
+      quiz: {
+        title: freshQuiz.title,
+        status: freshQuiz.status,
+        description: freshQuiz.description,
+      },
+      questions: questionRows.map((q, idx) => ({
+        id: q.id,
+        index: idx,
+        position: q.position,
+        text: q.text,
+        options: parseOptions(q.optionsJson),
+        seconds: q.seconds,
+        correctIndex: q.correctIndex,
+      })),
+      totalQuestions: questionRows.length,
+      participantCount: pCount,
+    };
+    quizCache.set(me.quizId, cached);
   }
 
   const base = {
-    serverNow: Date.now(),
-    quizTitle: quiz.title,
-    status: quiz.status,
+    serverNow: now,
+    quizTitle: cached.quiz.title,
+    status: cached.quiz.status,
     myScore: me.score,
     myName: me.name,
     myStream: me.stream,
   };
 
-  if (quiz.status === "draft") {
+  if (cached.quiz.status === "draft") {
     return NextResponse.json({ ...base, phase: "draft" });
   }
 
-  if (quiz.status === "lobby") {
-    const [{ count }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(participants)
-      .where(eq(participants.quizId, me.quizId));
+  if (cached.quiz.status === "lobby") {
     return NextResponse.json({
       ...base,
       phase: "lobby",
-      participantCount: Number(count),
+      participantCount: cached.participantCount ?? 1,
     });
   }
 
   // Common stats for active and ended phases
-  const [[{ count: better }], [{ count: totalPlayers }], questionRows, answerRows] =
+  const [[{ count: better }], [{ count: totalPlayers }], answerRows] =
     await Promise.all([
       db
         .select({ count: sql<number>`count(*)` })
@@ -76,20 +133,15 @@ export async function GET() {
         .where(eq(participants.quizId, me.quizId)),
       db
         .select()
-        .from(questions)
-        .where(eq(questions.quizId, me.quizId))
-        .orderBy(asc(questions.position)),
-      db
-        .select()
         .from(answers)
         .where(eq(answers.participantId, me.id)),
     ]);
 
   const myRank = Number(better) + 1;
   const totalParticipants = Number(totalPlayers);
-  const totalQuestions = questionRows.length;
+  const totalQuestions = cached.totalQuestions;
 
-  if (quiz.status === "ended") {
+  if (cached.quiz.status === "ended") {
     return NextResponse.json({
       ...base,
       phase: "ended",
@@ -100,17 +152,6 @@ export async function GET() {
   }
 
   // phase === "active"
-  // Return all questions with options and time limit, plus any answers this participant has already recorded.
-  const formattedQuestions = questionRows.map((q, idx) => ({
-    id: q.id,
-    index: idx,
-    position: q.position,
-    text: q.text,
-    options: parseOptions(q.optionsJson),
-    seconds: q.seconds,
-    correctIndex: q.correctIndex,
-  }));
-
   const myAnswers = answerRows.map((a) => ({
     questionId: a.questionId,
     choice: a.choice,
@@ -125,7 +166,7 @@ export async function GET() {
     totalQuestions,
     myRank,
     totalParticipants,
-    questions: formattedQuestions,
+    questions: cached.questions,
     myAnswers,
   });
 }
