@@ -1,0 +1,80 @@
+/* Bauhaus GDG Dashboard Shell Styling */
+.obsidian-dashboard-shell,
+.obsidian-dashboard-shell-layer {
+  --obsidian-dashboard-shell-background: #F0F0F0;
+  --obsidian-dashboard-shell-sidebar: #FFFFFF;
+  --obsidian-dashboard-shell-panel: #FFFFFF;
+  --obsidian-dashboard-shell-control: #FFFFFF;
+  --obsidian-dashboard-shell-muted: #E0E0E0;
+  --obsidian-dashboard-shell-muted-hover: #D5D5D5;
+  --obsidian-dashboard-shell-border: #121212;
+  --obsidian-dashboard-shell-border-strong: #121212;
+  --obsidian-dashboard-shell-foreground: #121212;
+  --obsidian-dashboard-shell-text-muted: #444444;
+  --obsidian-dashboard-shell-text-subtle: #666666;
+  --obsidian-dashboard-shell-icon: #121212;
+  --obsidian-dashboard-shell-hover: rgb(0 0 0 / 0.08);
+  --obsidian-dashboard-shell-accent: #4285F4;
+  --obsidian-dashboard-shell-accent-hover: #3367D6;
+  --obsidian-dashboard-shell-accent-foreground: #FFFFFF;
+  --obsidian-dashboard-shell-success: #34A853;
+  --obsidian-dashboard-shell-warning: #F9AB00;
+  --obsidian-dashboard-shell-danger: #EA4335;
+  --obsidian-dashboard-shell-ring: #121212;
+  --obsidian-dashboard-shell-control-shadow: 2px 2px 0px 0px #121212;
+  --obsidian-dashboard-shell-accent-shadow: 3px 3px 0px 0px #121212;
+  --obsidian-dashboard-shell-menu: #FFFFFF;
+  --obsidian-dashboard-shell-menu-highlight: #F0F0F0;
+  --obsidian-dashboard-shell-menu-shadow: 4px 4px 0px 0px #121212;
+}
+
+.dark .obsidian-dashboard-shell,
+.dark .obsidian-dashboard-shell-layer {
+  --obsidian-dashboard-shell-background: #F0F0F0;
+  --obsidian-dashboard-shell-sidebar: #FFFFFF;
+  --obsidian-dashboard-shell-panel: #FFFFFF;
+  --obsidian-dashboard-shell-control: #FFFFFF;
+  --obsidian-dashboard-shell-muted: #E0E0E0;
+  --obsidian-dashboard-shell-muted-hover: #D5D5D5;
+  --obsidian-dashboard-shell-border: #121212;
+  --obsidian-dashboard-shell-border-strong: #121212;
+  --obsidian-dashboard-shell-foreground: #121212;
+  --obsidian-dashboard-shell-text-muted: #444444;
+  --obsidian-dashboard-shell-text-subtle: #666666;
+  --obsidian-dashboard-shell-icon: #121212;
+  --obsidian-dashboard-shell-hover: rgb(0 0 0 / 0.08);
+  --obsidian-dashboard-shell-accent: #4285F4;
+  --obsidian-dashboard-shell-accent-hover: #3367D6;
+  --obsidian-dashboard-shell-accent-foreground: #FFFFFF;
+  --obsidian-dashboard-shell-success: #34A853;
+  --obsidian-dashboard-shell-warning: #F9AB00;
+  --obsidian-dashboard-shell-danger: #EA4335;
+  --obsidian-dashboard-shell-ring: #121212;
+  --obsidian-dashboard-shell-control-shadow: 2px 2px 0px 0px #121212;
+  --obsidian-dashboard-shell-accent-shadow: 3px 3px 0px 0px #121212;
+  --obsidian-dashboard-shell-menu: #FFFFFF;
+  --obsidian-dashboard-shell-menu-highlight: #F0F0F0;
+  --obsidian-dashboard-shell-menu-shadow: 4px 4px 0px 0px #121212;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .obsidian-dashboard-shell-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #121212 transparent;
+  }
+}
+
+@supports selector(::-webkit-scrollbar) {
+  .obsidian-dashboard-shell-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .obsidian-dashboard-shell-scroll::-webkit-scrollbar-thumb {
+    background: #121212;
+  }
+}
+
+.obsidian-dashboard-shell[data-resizing] {
+  cursor: col-resize;
+  user-select: none;
+}
