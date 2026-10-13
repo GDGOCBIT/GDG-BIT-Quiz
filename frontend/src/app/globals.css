@@ -1,0 +1,153 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-outfit), "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+  --font-heading: var(--font-outfit), "Outfit", sans-serif;
+  --font-display: var(--font-outfit), "Outfit", sans-serif;
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+}
+
+:root {
+  /* Bauhaus x GDG On Campus Design Tokens */
+  --background: #F0F0F0;
+  --foreground: #121212;
+
+  /* GDG Brand Primaries */
+  --gdg-blue: #4285F4;
+  --gdg-green: #34A853;
+  --gdg-yellow: #F9AB00;
+  --gdg-red: #EA4335;
+
+  /* UI Tokens */
+  --primary: #4285F4;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0F0F0;
+  --secondary-foreground: #121212;
+  --muted: #E0E0E0;
+  --muted-foreground: #555555;
+  --card: #FFFFFF;
+  --card-foreground: #121212;
+  --popover: #FFFFFF;
+  --popover-foreground: #121212;
+  --border: #121212;
+  --input: #121212;
+  --ring: #121212;
+  --destructive: #EA4335;
+
+  --radius: 0px;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: #F0F0F0;
+    color: #121212;
+    font-family: var(--font-sans);
+    /* Subtle Bauhaus constructivist architectural grid */
+    background-image: 
+      radial-gradient(#121212 1px, transparent 1px),
+      linear-gradient(to right, rgba(18, 18, 18, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(18, 18, 18, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px, 96px 96px, 96px 96px;
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.035em;
+  }
+}
+
+/* Bauhaus Hard Offset Shadows */
+.bauhaus-shadow-sm {
+  box-shadow: 3px 3px 0px 0px #121212;
+}
+
+.bauhaus-shadow {
+  box-shadow: 4px 4px 0px 0px #121212;
+}
+
+.bauhaus-shadow-md {
+  box-shadow: 6px 6px 0px 0px #121212;
+}
+
+.bauhaus-shadow-lg {
+  box-shadow: 8px 8px 0px 0px #121212;
+}
+
+.bauhaus-shadow-yellow {
+  box-shadow: 6px 6px 0px 0px #F9AB00;
+}
+
+.bauhaus-shadow-blue {
+  box-shadow: 6px 6px 0px 0px #4285F4;
+}
+
+.bauhaus-shadow-red {
+  box-shadow: 6px 6px 0px 0px #EA4335;
+}
+
+.bauhaus-shadow-green {
+  box-shadow: 6px 6px 0px 0px #34A853;
+}
+
+/* Bauhaus Button Press Animation */
+.bauhaus-btn-press {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.bauhaus-btn-press:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px 0px #121212 !important;
+}
+
+/* Bauhaus Geometric Corner Decorator */
+.bauhaus-corner-decor {
+  position: relative;
+}
+.bauhaus-corner-decor::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  background-color: var(--gdg-yellow);
+  border: 2px solid #121212;
+}
+
+/* Triangular shape utility */
+.triangle-up {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+.triangle-right {
+  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+}
